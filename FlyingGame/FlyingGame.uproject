@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{BA880E95-4561-73B1-A7FC-7481D40A197B}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "FlyingGame",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
