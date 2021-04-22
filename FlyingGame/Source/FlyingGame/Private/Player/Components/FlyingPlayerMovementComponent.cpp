@@ -2,6 +2,7 @@
 
 UFlyingPlayerMovementComponent::UFlyingPlayerMovementComponent(const FObjectInitializer& ObjectInitializer)
 {
+	CurrentHeading = FVector::ForwardVector;
 }
 
 void UFlyingPlayerMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -18,18 +19,35 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 	if (UpdatedComponent)
 	{
 		// Calculate change in rotation from input
-		FVector RightVector = UpdatedComponent->GetRightVector();
-		float DeltaAngle = FVector::DotProduct(RightVector, InputAcceleration) * MaxTurningSpeed * DeltaTime;
+		const FVector RightVector = UpdatedComponent->GetRightVector();
+		const float DeltaAngle = (RightVector | InputAcceleration) * MaxTurningSpeed * DeltaTime;
 
-		// Calculate new rotation and forward vector
-		FQuat NewRotation = UpdatedComponent->GetComponentRotation().Quaternion() * FQuat::MakeFromEuler(FVector::UpVector * DeltaAngle);
-		FVector NewForwardVector = NewRotation.RotateVector(FVector::ForwardVector);
+		// Find our current heading
+		const FVector CurrentForwardVector = UpdatedComponent->GetForwardVector();
+		FVector NewHeading = FVector(CurrentForwardVector.X, CurrentForwardVector.Y, 0.f).GetSafeNormal();
+
+		// If the current heading is zero, use last frame's current heading
+		NewHeading = NewHeading.IsNearlyZero() ? CurrentHeading : NewHeading;
+		
+		// Apply turning input to the new heading
+		NewHeading = FQuat::MakeFromEuler(FVector::UpVector * DeltaAngle).RotateVector(NewHeading);
+
+		// Find the new rotation of the player from their new heading
+		FQuat NewRotation = NewHeading.ToOrientationQuat();
+
+		// Apply diving input
+		const float DeltaDiveAngle = (CurrentForwardVector | InputAcceleration) * DivingAngleSpeed * DeltaTime;
+		CurrentDiveAngle = FMath::Clamp(CurrentDiveAngle + DeltaDiveAngle, -MaxDivingAngle, MaxDivingAngle);
+
+		NewRotation = NewRotation * FQuat::MakeFromEuler(FVector::RightVector*-CurrentDiveAngle);
+
+		const FVector NewForwardVector = NewRotation.GetForwardVector();
 
 		// Calculate new velocity
 		Velocity = DefaultForwardsFlyingSpeed * NewForwardVector;
 
 		// Update position
-		FVector DeltaPosition = Velocity * DeltaTime;
+		const FVector DeltaPosition = Velocity * DeltaTime;
 
 		FHitResult Hit(1.f);
 		const bool bSweep = true;

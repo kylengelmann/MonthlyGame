@@ -24,6 +24,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component | Movement Parameters")
 	float MaxTurningSpeed = 60.f;
 
+	/** The max angle the player can dive down at */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component | Movement Parameters")
+	float MaxDivingAngle = 60.f;
+
+	/** The rate at which the player's diving angle changes, in degrees per second */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component | Movement Parameters")
+	float DivingAngleSpeed = 30.f;
+
 protected:
 
 	/** This frame's input acceleration */
@@ -31,4 +39,10 @@ protected:
 	
 	/** Tick flying movement */
 	void TickFlying(float DeltaTime);
+
+	/** The current heading of the player (Their forward vector, ignoring the z component) */
+	FVector CurrentHeading;
+
+	/** The angle at which the player is diving */
+	float CurrentDiveAngle = 0.f;
 };
