@@ -32,6 +32,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component | Movement Parameters")
 	float DivingAngleSpeed = 30.f;
 
+	/** The maximum speed at which the player can fly at */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component | Movement Parameters")
+	float MaxSpeed = 1500.f;
+
 protected:
 
 	/** This frame's input acceleration */
@@ -45,4 +49,7 @@ protected:
 
 	/** The angle at which the player is diving */
 	float CurrentDiveAngle = 0.f;
+
+	/** The player's current speed */
+	float CurrentSpeed;
 };

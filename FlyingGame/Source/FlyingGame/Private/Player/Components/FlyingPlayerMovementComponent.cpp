@@ -1,6 +1,7 @@
 #include "Player/Components/FlyingPlayerMovementComponent.h"
 
 UFlyingPlayerMovementComponent::UFlyingPlayerMovementComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	CurrentHeading = FVector::ForwardVector;
 }
@@ -20,7 +21,7 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 	{
 		// Calculate change in rotation from input
 		const FVector RightVector = UpdatedComponent->GetRightVector();
-		const float DeltaAngle = (RightVector | InputAcceleration) * MaxTurningSpeed * DeltaTime;
+		const float DeltaAngle = (FVector::RightVector | InputAcceleration) * MaxTurningSpeed * DeltaTime;
 
 		// Find our current heading
 		const FVector CurrentForwardVector = UpdatedComponent->GetForwardVector();
@@ -36,7 +37,7 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 		FQuat NewRotation = NewHeading.ToOrientationQuat();
 
 		// Apply diving input
-		const float DeltaDiveAngle = (CurrentForwardVector | InputAcceleration) * DivingAngleSpeed * DeltaTime;
+		const float DeltaDiveAngle = (FVector::ForwardVector | InputAcceleration) * DivingAngleSpeed * DeltaTime;
 		CurrentDiveAngle = FMath::Clamp(CurrentDiveAngle + DeltaDiveAngle, -MaxDivingAngle, MaxDivingAngle);
 
 		NewRotation = NewRotation * FQuat::MakeFromEuler(FVector::RightVector*-CurrentDiveAngle);
@@ -44,7 +45,10 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 		const FVector NewForwardVector = NewRotation.GetForwardVector();
 
 		// Calculate new velocity
-		Velocity = DefaultForwardsFlyingSpeed * NewForwardVector;
+		CurrentSpeed += GetGravityZ() * DeltaTime * NewForwardVector.Z;
+		CurrentSpeed = FMath::Clamp(CurrentSpeed, DefaultForwardsFlyingSpeed, MaxSpeed);
+		
+		Velocity = CurrentSpeed * NewForwardVector;
 
 		// Update position
 		const FVector DeltaPosition = Velocity * DeltaTime;
