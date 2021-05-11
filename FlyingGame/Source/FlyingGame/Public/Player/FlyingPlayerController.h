@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Camera/CameraModifier_LerpyCamera.h"
 #include "FlyingPlayerController.generated.h"
 
 class AFlyingPlayerPawn;
@@ -31,6 +32,10 @@ protected:
 	/** Uncache the pawn, setting CachedFlyingPlayerPawn back to null */
 	virtual void OnUnPossess() override;
 
+	/** The settings to use on the lerpy camera that gets applied when possessing an AFlyingPlayerPawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	FLerpyCameraSettings LerpyCameraSettings;
+
 private:
 	/** Input handling */
 	void OnHorizontalMoveInput(float AxisValue);
@@ -42,4 +47,7 @@ private:
 
 	/** The current values of the horizontal and vertical axes */
 	FVector2D CurrentMoveAxis;
+
+	/** The currently applied lerpy camera modifier (if there is one applied) */
+	TWeakObjectPtr<UCameraModifier_LerpyCamera> CurrentLerpyCameraModifier;
 };

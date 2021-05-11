@@ -1,6 +1,7 @@
 #include "Player/FlyingPlayerController.h"
 #include "Input/FlyingPlayerInput.h"
 #include "Player/FlyingPlayerPawn.h"
+#include "Camera/CameraModifier_LerpyCamera.h"
 
 AFlyingPlayerController::AFlyingPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -34,14 +35,12 @@ void AFlyingPlayerController::PlayerTick(float DeltaTime)
 
 void AFlyingPlayerController::OnHorizontalMoveInput(float AxisValue)
 {
-	// UE4 uses X as forward and Y as right :((((((
-	CurrentMoveAxis.Y = AxisValue;
+	CurrentMoveAxis.X = AxisValue;
 }
 
 void AFlyingPlayerController::OnVerticalMoveInput(float AxisValue)
 {
-	// UE4 uses X as forward and Y as right :((((((
-	CurrentMoveAxis.X = AxisValue;
+	CurrentMoveAxis.Y = AxisValue;
 }
 
 void AFlyingPlayerController::OnBoostInput()
@@ -56,6 +55,15 @@ void AFlyingPlayerController::OnPossess(APawn* PawnToPossess)
 		Super::OnPossess(PawnToPossess);
 
 		CachedFlyingPlayerPawn = GetPawn<AFlyingPlayerPawn>();
+
+		if(CachedFlyingPlayerPawn.IsValid() && PlayerCameraManager)
+		{
+			CurrentLerpyCameraModifier = Cast<UCameraModifier_LerpyCamera>(PlayerCameraManager->AddNewCameraModifier(UCameraModifier_LerpyCamera::StaticClass()));
+			if(CurrentLerpyCameraModifier.IsValid())
+			{
+				CurrentLerpyCameraModifier->LerpyCameraSettings = LerpyCameraSettings;
+			}
+		}
 	}
 }
 
@@ -64,4 +72,11 @@ void AFlyingPlayerController::OnUnPossess()
 	Super::OnUnPossess();
 
 	CachedFlyingPlayerPawn.Reset();
+
+	if(CurrentLerpyCameraModifier.IsValid() && PlayerCameraManager)
+	{
+		PlayerCameraManager->RemoveCameraModifier(CurrentLerpyCameraModifier.Get());
+	}
+
+	CurrentLerpyCameraModifier.Reset();
 }

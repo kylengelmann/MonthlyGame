@@ -41,13 +41,14 @@ public:
 	/** Ctor */
 	UFlyingPlayerInput();
 	
-	/** Name of the horizontal movement input axis */
+	/** Axis names */
 	static const FName HorizontalMoveAxis;
-
-	/** Name of the vertical movement input axis */
 	static const FName VerticalMoveAxis;
 
-	/** Name of the Boost input action */
+	static const FName HorizontalLookAxis;
+	static const FName VerticalLookAxis;
+
+	/** Action names */
 	static const FName BoostAction;
 
 	/** Initialize custom player input mappings */

@@ -3,12 +3,19 @@
 DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerInput, Log, Warning)
 
 /** File specific consts */
+static const FName DefaultKeyboardInputConfigObjectName = FName(TEXT("DefaultKeyboardInputConfig"));
 static const FName KeyboardInputConfigObjectName = FName(TEXT("KeyboardInputConfig"));
+
+static const FName DefaultGamepadInputConfigObjectName = FName(TEXT("DefaultGamepadInputConfig"));
 static const FName GamepadInputConfigObjectName = FName(TEXT("GamepadInputConfig"));
 
 /** Class statics */
 const FName UFlyingPlayerInput::HorizontalMoveAxis = FName(TEXT("HorizontalMoveAxis"));
 const FName UFlyingPlayerInput::VerticalMoveAxis = FName(TEXT("VerticalMoveAxis"));
+
+const FName UFlyingPlayerInput::HorizontalLookAxis = FName(TEXT("HorizontalLookAxis"));
+const FName UFlyingPlayerInput::VerticalLookAxis = FName(TEXT("VerticalLookAxis"));
+
 const FName UFlyingPlayerInput::BoostAction = FName(TEXT("BoostAction"));
 
 UFlyingPlayerInput::UFlyingPlayerInput()
@@ -23,8 +30,9 @@ void UFlyingPlayerInput::PostInitProperties()
 	Super::PostInitProperties();
 
 	// Load the input configs from the input ini file
-	KeyboardInputConfig = NewObject<UFlyingInputConfig>(GetPackage(), KeyboardInputConfigObjectName);
-	GamepadInputConfig = NewObject<UFlyingInputConfig>(GetPackage(), GamepadInputConfigObjectName);
+	// TODO: Use not default and populate missing axes and actions from default
+	KeyboardInputConfig = NewObject<UFlyingInputConfig>(GetPackage(), DefaultKeyboardInputConfigObjectName);
+	GamepadInputConfig = NewObject<UFlyingInputConfig>(GetPackage(), DefaultGamepadInputConfigObjectName);
 
 	// Apply the input configs
 	ApplyInputMappings();
