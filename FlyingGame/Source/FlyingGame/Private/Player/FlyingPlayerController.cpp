@@ -15,8 +15,8 @@ void AFlyingPlayerController::SetupInputComponent()
 	if(InputComponent)
 	{
 		// Bind movement
-		InputComponent->BindAxis(UFlyingPlayerInput::HorizontalMoveAxis, this, &AFlyingPlayerController::OnHorizontalMoveInput);
-		InputComponent->BindAxis(UFlyingPlayerInput::VerticalMoveAxis, this, &AFlyingPlayerController::OnVerticalMoveInput);
+		InputComponent->BindAxis(UFlyingPlayerInput::HorizontalLookAxis, this, &AFlyingPlayerController::OnHorizontalMoveInput);
+		InputComponent->BindAxis(UFlyingPlayerInput::VerticalLookAxis, this, &AFlyingPlayerController::OnVerticalMoveInput);
 
 		// Bind actions
 		InputComponent->BindAction(UFlyingPlayerInput::BoostAction, IE_Pressed, this, &AFlyingPlayerController::OnBoostInput);
