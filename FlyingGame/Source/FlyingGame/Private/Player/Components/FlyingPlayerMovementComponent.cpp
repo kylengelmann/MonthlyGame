@@ -1,6 +1,6 @@
 #include "Player/Components/FlyingPlayerMovementComponent.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerMovementComponent, Log, Log)
+DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerMovementComponent, Log, All)
 
 UFlyingPlayerMovementComponent::UFlyingPlayerMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -216,3 +216,18 @@ bool UFlyingPlayerMovementComponent::TrySetPostHitHeadingAndAngle(const FVector&
 	return true;
 }
 
+void UFlyingPlayerMovementComponent::AddImpulse(FVector Impulse, bool bVelocityChange)
+{
+	if(bVelocityChange)
+	{
+		Velocity += Impulse;
+	}
+	else if(Mass > SMALL_NUMBER)
+	{
+		Velocity += Impulse / Mass;
+	}
+	else
+	{
+		UE_LOG(LogFlyingPlayerMovementComponent, Error, TEXT("UFlyingPlayerMovementComponent::AddImpulse: Trying to add non-velocity change impulse to a pawn with zero mass"));
+	}
+}

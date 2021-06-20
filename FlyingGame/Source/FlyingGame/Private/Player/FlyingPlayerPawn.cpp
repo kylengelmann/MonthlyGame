@@ -1,5 +1,9 @@
 #include "Player/FlyingPlayerPawn.h"
+
+#include "GameFramework/GameStateBase.h"
 #include "Player/Components/FlyingPlayerMovementComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerPawn, Log, All)
 
 AFlyingPlayerPawn::AFlyingPlayerPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -25,5 +29,42 @@ void AFlyingPlayerPawn::SetMoveAxis(const FVector2D& MoveAxis)
 
 		// Pass the axis on to the movement component
 		MovementComponent->AddInputVector(MoveAxisClamped);
+	}
+}
+
+void AFlyingPlayerPawn::Boost()
+{
+	if(!MovementComponent)
+	{
+		UE_LOG(LogFlyingPlayerPawn, Error, TEXT("AFlyingPlayerPawn::Boost: Null movement component"));
+		return;
+	}
+	
+	if(const UWorld* World = GetWorld())
+	{
+		// Check cooldown
+		const float CurrentTime = World->GetTimeSeconds();
+		if(World->GetTimeSeconds() - LastBoostTime < BoostCooldown)
+		{
+			UE_LOG(LogFlyingPlayerPawn, Verbose, TEXT("AFlyingPlayerPawn::Boost: Tried to boost before boost cooldown is has finished. Current Time: %.4f, LastBoostTime: %.4f, Cooldown: %f"), 
+				CurrentTime, LastBoostTime, BoostCooldown);
+
+			return;
+		}
+
+		// reset the cooldown
+		LastBoostTime = CurrentTime;
+
+		// Calculate how much velocity should be added to the player
+		float CurrentBoostStrength = BoostStrength;
+		if(BoostStrengthCurve)
+		{
+			const float CurrentSpeed = MovementComponent->Velocity | GetActorForwardVector();
+			CurrentBoostStrength *= BoostStrengthCurve->GetFloatValue(CurrentSpeed / MovementComponent->MaxForwardsFlyingSpeed);
+		}
+
+		// zzzzzzooooooom
+		const bool bVelocityChange = true;
+		MovementComponent->AddImpulse(GetActorForwardVector() * CurrentBoostStrength, bVelocityChange);
 	}
 }

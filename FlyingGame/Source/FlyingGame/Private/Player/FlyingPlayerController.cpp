@@ -45,7 +45,10 @@ void AFlyingPlayerController::OnVerticalMoveInput(float AxisValue)
 
 void AFlyingPlayerController::OnBoostInput()
 {
-	
+	if(AFlyingPlayerPawn* PlayerPawn = GetFlyingPlayerPawn())
+	{
+		PlayerPawn->Boost();
+	}
 }
 
 void AFlyingPlayerController::OnPossess(APawn* PawnToPossess)

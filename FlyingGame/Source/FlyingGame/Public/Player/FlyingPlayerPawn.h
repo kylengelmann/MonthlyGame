@@ -23,8 +23,27 @@ public:
 	UFlyingPlayerMovementComponent* GetFlyingMovementComponent() const { return MovementComponent; }
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
+	/** The strength of the player's boost. The X axis is the speed of the bird, normalized to UFlyingPlayerMovementComponent::MaxForwardsFlyingSpeed, while the Y axis is the velocity added, scaled by BoostStrength */
+	UPROPERTY(EditAnywhere, Category = "Flying Player Pawn | Boost")
+	UCurveFloat* BoostStrengthCurve;
+
+	/** The strength of the player's boost. Scales the Y axis of BoostStrengthCurve */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Pawn | Boost")
+	float BoostStrength = 100.f;
+
+	/** The minimum time in seconds that must pass after the player boosts before they can boost again */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Pawn | Boost")
+	float BoostCooldown = .75f;
+
+	/** Triggers a boost if the boost is not in cooldown */
+	void Boost();
+
 private:
 	/** This player's movement component */
 	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess="true"))
 	UFlyingPlayerMovementComponent* MovementComponent;
+
+	/** The time at which the last boost was triggered */
+	float LastBoostTime;
+	
 };
