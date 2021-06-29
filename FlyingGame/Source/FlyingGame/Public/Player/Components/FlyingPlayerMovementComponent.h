@@ -58,6 +58,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Flying Player Movement Component")
 	void AddImpulse(FVector Impulse, bool bVelocityChange = false);
 
+	UFUNCTION(BlueprintCallable, Category = "Flying Player Movement Component")
+	void SetSteerAxis(const FVector2D& Steer) { SteerAxis = Steer; }
+
 protected:
 
 	/** This frame's input acceleration */
@@ -87,4 +90,7 @@ protected:
 	/** Given a forward vector and a hit normal, tries to find the best goal heading and pitch and sets the respective values if so.
 	    Returns whether or not it was successful in finding a good heading and pitch */
 	bool TrySetPostHitHeadingAndAngle(const FVector& ForwardVector, const FVector& HitNormal);
+
+	/** The axis used to steer the player, should be between -1 and 1 on all axes */
+	FVector2D SteerAxis;
 };

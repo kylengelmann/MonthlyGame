@@ -47,6 +47,8 @@ public:
 
 	static const FName HorizontalLookAxis;
 	static const FName VerticalLookAxis;
+	static const FName HorizontalLookAxis_Gamepad;
+	static const FName VerticalLookAxis_Gamepad;
 
 	/** Action names */
 	static const FName BoostAction;

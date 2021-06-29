@@ -22,11 +22,11 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 	if (UpdatedComponent)
 	{
 		// Calculate change in rotation from input
-		const float DeltaAngle = (FVector::RightVector | InputAcceleration) * MaxTurningAngularSpeed * DeltaTime;
+		const float DeltaAngle = SteerAxis.X * MaxTurningAngularSpeed * DeltaTime;
 		const FQuat InputRotation = FQuat::MakeFromEuler(FVector::UpVector * DeltaAngle);
 
 		// Calculate change in pitch from input
-		const float DeltaPitch = (FVector::ForwardVector | -InputAcceleration) * PitchAngularSpeed * DeltaTime;
+		const float DeltaPitch = SteerAxis.Y * PitchAngularSpeed * DeltaTime;
 
 		// Find our current heading
 		const FVector CurrentForwardVector = UpdatedComponent->GetForwardVector();

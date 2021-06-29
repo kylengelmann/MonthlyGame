@@ -1,6 +1,7 @@
 #include "Player/FlyingPlayerPawn.h"
 
 #include "GameFramework/GameStateBase.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Player/Components/FlyingPlayerMovementComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerPawn, Log, All)
@@ -15,6 +16,41 @@ UPawnMovementComponent* AFlyingPlayerPawn::GetMovementComponent() const
 {
 	return MovementComponent;
 }
+
+void AFlyingPlayerPawn::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	if (const AFlyingPlayerController* FPC = FlyingPlayerController.Get())
+	{
+		if (MovementComponent)
+		{
+			const FRotator CurrentControlRotation = GetControlRotation();
+			const FVector2D SteerAxis = FVector2D(CurrentControlRotation.Yaw / FPC->MaxControlRotationYaw, CurrentControlRotation.Pitch / FPC->MaxControlRotationPitch);
+			MovementComponent->SetSteerAxis(SteerAxis);
+		}
+	}
+}
+
+void AFlyingPlayerPawn::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	FlyingPlayerController = Cast<AFlyingPlayerController>(NewController);
+
+	if(!FlyingPlayerController.IsValid())
+	{
+		UE_LOG(LogFlyingPlayerPawn, Error, TEXT("AFlyingPlayerPawn::PossessedBy: NewController %s is either null or not an AFlyingPlayerController"), *NewController->GetName());
+	}
+}
+
+void AFlyingPlayerPawn::UnPossessed()
+{
+	Super::UnPossessed();
+	
+	FlyingPlayerController.Reset();
+}
+
 
 void AFlyingPlayerPawn::SetMoveAxis(const FVector2D& MoveAxis)
 {
