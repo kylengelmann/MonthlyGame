@@ -20,16 +20,6 @@ UPawnMovementComponent* AFlyingPlayerPawn::GetMovementComponent() const
 void AFlyingPlayerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	
-	if (const AFlyingPlayerController* FPC = FlyingPlayerController.Get())
-	{
-		if (MovementComponent)
-		{
-			const FRotator CurrentControlRotation = GetControlRotation();
-			const FVector2D SteerAxis = FVector2D(CurrentControlRotation.Yaw / FPC->MaxControlRotationYaw, CurrentControlRotation.Pitch / FPC->MaxControlRotationPitch);
-			MovementComponent->SetSteerAxis(SteerAxis);
-		}
-	}
 }
 
 void AFlyingPlayerPawn::PossessedBy(AController* NewController)
@@ -65,6 +55,17 @@ void AFlyingPlayerPawn::SetMoveAxis(const FVector2D& MoveAxis)
 
 		// Pass the axis on to the movement component
 		MovementComponent->AddInputVector(MoveAxisClamped);
+	}
+}
+
+void AFlyingPlayerPawn::SetSteerAxis(const FVector2D& SteerAxis)
+{
+	if(MovementComponent)
+	{
+		FVector2D SteerAxisClamped = SteerAxis;
+		SteerAxisClamped.X = FMath::Clamp(SteerAxis.X, -1.f, 1.f);
+		SteerAxisClamped.Y = FMath::Clamp(SteerAxis.Y, -1.f, 1.f);
+		MovementComponent->SetSteerAxis(SteerAxisClamped);
 	}
 }
 

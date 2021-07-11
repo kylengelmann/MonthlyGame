@@ -27,6 +27,9 @@ public:
 	
 	/** Pass the move axis on to the movement component */
 	void SetMoveAxis(const FVector2D& MoveAxis);
+
+	/** Pass the steer axis on to the movement component */
+	void SetSteerAxis(const FVector2D& SteerAxis);
 	
 	/** Getters for MovementComponent */
 	UFUNCTION(BlueprintPure, Category = "Flying Player Pawn")

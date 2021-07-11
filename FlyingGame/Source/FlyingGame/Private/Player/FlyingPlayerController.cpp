@@ -48,16 +48,30 @@ void AFlyingPlayerController::PlayerTick(float DeltaTime)
 
 		if(bIsLookFromGamepad)
 		{
-			SetControlRotation(FRotator(CurrentLookAxis_Gamepad.Y * MaxControlRotationPitch, CurrentLookAxis_Gamepad.X * MaxControlRotationYaw, 0.f));
+			CurrentSteerAxis = CurrentLookAxis_Gamepad;
+
+			PlayerPawn->SetSteerAxis(CurrentSteerAxis);
 		}
 		else
 		{
-			FRotator CurrentControlRotation = GetControlRotation();
-			CurrentControlRotation.Yaw = FMath::Clamp(CurrentControlRotation.Yaw + CurrentLookAxis.X * YawLookScale * DeltaTime, -MaxControlRotationYaw, MaxControlRotationYaw);
-			CurrentControlRotation.Pitch = FMath::Clamp(CurrentControlRotation.Pitch + CurrentLookAxis.Y * PitchLookScale * DeltaTime, -MaxControlRotationPitch, MaxControlRotationPitch);
+			CurrentSteerAxis.X = FMath::Clamp(CurrentSteerAxis.X + (CurrentLookAxis.X * YawLookScale * DeltaTime) / MaxControlRotationYaw, -1.f, 1.f);
+			CurrentSteerAxis.Y = FMath::Clamp(CurrentSteerAxis.Y + (CurrentLookAxis.Y * PitchLookScale * DeltaTime) / MaxControlRotationPitch, -1.f, 1.f);
 
-			SetControlRotation(CurrentControlRotation);
+			const float CurrentSteerAxisMagnitude = CurrentSteerAxis.Size();
+			const float Sqrt2 = FMath::Sqrt(2.f);
+			const float SteerAxisMagnitudeDeadzoneApplied = FMath::GetMappedRangeValueClamped(FVector2D(SteerDeadzoneSize, Sqrt2), FVector2D(0.f, Sqrt2), CurrentSteerAxisMagnitude);
+
+			FVector2D SteerAxisDeadzoneApplied = CurrentSteerAxis.GetSafeNormal() * SteerAxisMagnitudeDeadzoneApplied;
+			PlayerPawn->SetSteerAxis(SteerAxisDeadzoneApplied);
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(3, 10.f, FColor::Emerald, FString::Printf(TEXT("SteerAxis: %s, SteerAxisDeadzone: %s"), *CurrentSteerAxis.ToString(), *SteerAxisDeadzoneApplied.ToString()));
+			}
 		}
+
+		const FQuat ControlRotationQuat = FQuat::MakeFromEuler(FVector(0.f, 0.f, CurrentSteerAxis.X * MaxControlRotationYaw)) * FQuat::MakeFromEuler(FVector(0.f, CurrentSteerAxis.Y * MaxControlRotationPitch, 0.f));
+		SetControlRotation(ControlRotationQuat.Rotator());
 	}
 }
 

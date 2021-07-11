@@ -38,6 +38,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxControlRotationPitch = 20.f;
 
+	/** Deadzone size for the steer axis when using the mouse */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SteerDeadzoneSize = 0.2f;
+
+	/** Returns whether or not the gamepad is being used to control the look axis.
+		Getter for bIsLookFromGamepad. */
 	UFUNCTION(BlueprintPure, Category = FlyingPlayerController)
 	bool GetIsLookFromGamepad() const { return bIsLookFromGamepad; }
 
@@ -77,4 +83,7 @@ private:
 
 	/** Whether or not a gamepad is being used to steer the player */
 	bool bIsLookFromGamepad;
+
+	/** The current value of the steering axis */
+	FVector2D CurrentSteerAxis;
 };
