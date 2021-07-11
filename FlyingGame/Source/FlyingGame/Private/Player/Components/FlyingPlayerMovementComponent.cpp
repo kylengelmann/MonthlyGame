@@ -1,6 +1,6 @@
 #include "Player/Components/FlyingPlayerMovementComponent.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerMovementComponent, Log, Log)
+DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerMovementComponent, Log, All)
 
 UFlyingPlayerMovementComponent::UFlyingPlayerMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -22,11 +22,11 @@ void UFlyingPlayerMovementComponent::TickFlying(float DeltaTime)
 	if (UpdatedComponent)
 	{
 		// Calculate change in rotation from input
-		const float DeltaAngle = (FVector::RightVector | InputAcceleration) * MaxTurningAngularSpeed * DeltaTime;
+		const float DeltaAngle = SteerAxis.X * MaxTurningAngularSpeed * DeltaTime;
 		const FQuat InputRotation = FQuat::MakeFromEuler(FVector::UpVector * DeltaAngle);
 
 		// Calculate change in pitch from input
-		const float DeltaPitch = (FVector::ForwardVector | -InputAcceleration) * PitchAngularSpeed * DeltaTime;
+		const float DeltaPitch = SteerAxis.Y * PitchAngularSpeed * DeltaTime;
 
 		// Find our current heading
 		const FVector CurrentForwardVector = UpdatedComponent->GetForwardVector();
@@ -216,3 +216,18 @@ bool UFlyingPlayerMovementComponent::TrySetPostHitHeadingAndAngle(const FVector&
 	return true;
 }
 
+void UFlyingPlayerMovementComponent::AddImpulse(FVector Impulse, bool bVelocityChange)
+{
+	if(bVelocityChange)
+	{
+		Velocity += Impulse;
+	}
+	else if(Mass > SMALL_NUMBER)
+	{
+		Velocity += Impulse / Mass;
+	}
+	else
+	{
+		UE_LOG(LogFlyingPlayerMovementComponent, Error, TEXT("UFlyingPlayerMovementComponent::AddImpulse: Trying to add non-velocity change impulse to a pawn with zero mass"));
+	}
+}

@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{6AC53B0D-4F69-DAB8-9AB9-D69987E440EC}",
+	"EngineAssociation": "{DF5A26F3-4BC6-B2CB-68C7-FF85C8A89BD3}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -17,6 +17,24 @@
 		{
 			"Name": "GameplayAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "OculusVR",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win32",
+				"Win64",
+				"Android"
+			]
+		},
+		{
+			"Name": "SteamVR",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win32",
+				"Win64",
+				"Linux"
+			]
 		}
 	]
 }

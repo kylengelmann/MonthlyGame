@@ -15,6 +15,8 @@ const FName UFlyingPlayerInput::VerticalMoveAxis = FName(TEXT("VerticalMoveAxis"
 
 const FName UFlyingPlayerInput::HorizontalLookAxis = FName(TEXT("HorizontalLookAxis"));
 const FName UFlyingPlayerInput::VerticalLookAxis = FName(TEXT("VerticalLookAxis"));
+const FName UFlyingPlayerInput::HorizontalLookAxis_Gamepad = FName(TEXT("HorizontalLookAxis_Gamepad"));
+const FName UFlyingPlayerInput::VerticalLookAxis_Gamepad = FName(TEXT("VerticalLookAxis_Gamepad"));
 
 const FName UFlyingPlayerInput::BoostAction = FName(TEXT("BoostAction"));
 

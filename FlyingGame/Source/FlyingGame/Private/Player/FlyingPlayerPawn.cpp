@@ -1,5 +1,10 @@
 #include "Player/FlyingPlayerPawn.h"
+
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Player/Components/FlyingPlayerMovementComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogFlyingPlayerPawn, Log, All)
 
 AFlyingPlayerPawn::AFlyingPlayerPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -11,6 +16,31 @@ UPawnMovementComponent* AFlyingPlayerPawn::GetMovementComponent() const
 {
 	return MovementComponent;
 }
+
+void AFlyingPlayerPawn::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
+
+void AFlyingPlayerPawn::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	FlyingPlayerController = Cast<AFlyingPlayerController>(NewController);
+
+	if(!FlyingPlayerController.IsValid())
+	{
+		UE_LOG(LogFlyingPlayerPawn, Error, TEXT("AFlyingPlayerPawn::PossessedBy: NewController %s is either null or not an AFlyingPlayerController"), *NewController->GetName());
+	}
+}
+
+void AFlyingPlayerPawn::UnPossessed()
+{
+	Super::UnPossessed();
+	
+	FlyingPlayerController.Reset();
+}
+
 
 void AFlyingPlayerPawn::SetMoveAxis(const FVector2D& MoveAxis)
 {
@@ -25,5 +55,53 @@ void AFlyingPlayerPawn::SetMoveAxis(const FVector2D& MoveAxis)
 
 		// Pass the axis on to the movement component
 		MovementComponent->AddInputVector(MoveAxisClamped);
+	}
+}
+
+void AFlyingPlayerPawn::SetSteerAxis(const FVector2D& SteerAxis)
+{
+	if(MovementComponent)
+	{
+		FVector2D SteerAxisClamped = SteerAxis;
+		SteerAxisClamped.X = FMath::Clamp(SteerAxis.X, -1.f, 1.f);
+		SteerAxisClamped.Y = FMath::Clamp(SteerAxis.Y, -1.f, 1.f);
+		MovementComponent->SetSteerAxis(SteerAxisClamped);
+	}
+}
+
+void AFlyingPlayerPawn::Boost()
+{
+	if(!MovementComponent)
+	{
+		UE_LOG(LogFlyingPlayerPawn, Error, TEXT("AFlyingPlayerPawn::Boost: Null movement component"));
+		return;
+	}
+	
+	if(const UWorld* World = GetWorld())
+	{
+		// Check cooldown
+		const float CurrentTime = World->GetTimeSeconds();
+		if(World->GetTimeSeconds() - LastBoostTime < BoostCooldown)
+		{
+			UE_LOG(LogFlyingPlayerPawn, Verbose, TEXT("AFlyingPlayerPawn::Boost: Tried to boost before boost cooldown is has finished. Current Time: %.4f, LastBoostTime: %.4f, Cooldown: %f"), 
+				CurrentTime, LastBoostTime, BoostCooldown);
+
+			return;
+		}
+
+		// reset the cooldown
+		LastBoostTime = CurrentTime;
+
+		// Calculate how much velocity should be added to the player
+		float CurrentBoostStrength = BoostStrength;
+		if(BoostStrengthCurve)
+		{
+			const float CurrentSpeed = MovementComponent->Velocity | GetActorForwardVector();
+			CurrentBoostStrength *= BoostStrengthCurve->GetFloatValue(CurrentSpeed / MovementComponent->MaxForwardsFlyingSpeed);
+		}
+
+		// zzzzzzooooooom
+		const bool bVelocityChange = true;
+		MovementComponent->AddImpulse(GetActorForwardVector() * CurrentBoostStrength, bVelocityChange);
 	}
 }

@@ -23,7 +23,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Flying Player Movement Component", meta=(ClampMin="0.0"))
 	float DefaultForwardsFlyingSpeed = 500.f;
 
-	/** The maximum speed at which the player can fly at */
+	/** The maximum speed at which the player can fly at. Past this point, gravity will no longer add to the speed of the bird */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component", meta=(ClampMin="0.0"))
 	float MaxForwardsFlyingSpeed = 1500.f;
 
@@ -50,6 +50,16 @@ public:
 	/** The rate at which the player's pitch changes, in degrees per seconds */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flying Player Movement Component", meta = (ClampMin = "0.0"))
 	float PitchAngularSpeed = 50.f;
+
+	/** Mass of the player pawn, for when physics physics */
+	UPROPERTY(Category = "Flying Player Movement Component", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float Mass = 5.f;
+
+	UFUNCTION(BlueprintCallable, Category = "Flying Player Movement Component")
+	void AddImpulse(FVector Impulse, bool bVelocityChange = false);
+
+	UFUNCTION(BlueprintCallable, Category = "Flying Player Movement Component")
+	void SetSteerAxis(const FVector2D& Steer) { SteerAxis = Steer; }
 
 protected:
 
@@ -80,4 +90,7 @@ protected:
 	/** Given a forward vector and a hit normal, tries to find the best goal heading and pitch and sets the respective values if so.
 	    Returns whether or not it was successful in finding a good heading and pitch */
 	bool TrySetPostHitHeadingAndAngle(const FVector& ForwardVector, const FVector& HitNormal);
+
+	/** The axis used to steer the player, should be between -1 and 1 on all axes */
+	FVector2D SteerAxis;
 };
