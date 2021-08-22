@@ -7,7 +7,7 @@
 /**
  * Component for moving FlyingGame players
  */
-UCLASS(HideCategories=(Sockets, NavMovement, Velocity, PlanarMovement, Collision), meta = (BlueprintSpawnableComponent))
+UCLASS(BlueprintType, HideCategories=(Sockets, NavMovement, Velocity, PlanarMovement, Collision), meta = (BlueprintSpawnableComponent))
 class FLYINGGAME_API UFlyingPlayerMovementComponent : public UPawnMovementComponent
 {
 	GENERATED_UCLASS_BODY()
